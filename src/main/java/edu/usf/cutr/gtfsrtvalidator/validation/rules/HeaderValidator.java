@@ -49,6 +49,14 @@ public class HeaderValidator implements FeedEntityValidator {
             _log.debug(om.getPrefix() + " " + E038.getOccurrenceSuffix());
         }
 
+        if (feedMessage.getHeader().getIncrementality().equals(GtfsRealtime.FeedHeader.Incrementality.FULL_DATASET)) {
+            for (GtfsRealtime.FeedEntity entity : feedMessage.getEntityList()) {
+                if (entity.hasIsDeleted()) {
+
+                }
+            }
+        }
+
         List<ErrorListHelperModel> errors = new ArrayList<>();
         if (!errorListE038.isEmpty()) {
             errors.add(new ErrorListHelperModel(new MessageLogModel(E038), errorListE038));
