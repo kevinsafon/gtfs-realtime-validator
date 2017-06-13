@@ -17,13 +17,19 @@
 package edu.usf.cutr.gtfsrtvalidator.test.rules;
 
 import com.google.transit.realtime.GtfsRealtime;
+import edu.usf.cutr.gtfsrtvalidator.api.model.ValidationRule;
 import edu.usf.cutr.gtfsrtvalidator.test.FeedMessageTest;
 import edu.usf.cutr.gtfsrtvalidator.test.util.TestUtils;
 import edu.usf.cutr.gtfsrtvalidator.validation.ValidationRules;
 import edu.usf.cutr.gtfsrtvalidator.validation.rules.TripDescriptorValidator;
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static edu.usf.cutr.gtfsrtvalidator.util.TimestampUtils.MIN_POSIX_TIME;
+import static edu.usf.cutr.gtfsrtvalidator.validation.ValidationRules.E004;
+import static edu.usf.cutr.gtfsrtvalidator.validation.ValidationRules.W006;
 
 /**
  * Tests related to rules implemented in TripDescriptorValidator
@@ -41,6 +47,7 @@ public class TripDescriptorValidatorTest extends FeedMessageTest {
     @Test
     public void testTripIdAndRouteIdValidation() {
         TripDescriptorValidator tripIdValidator = new TripDescriptorValidator();
+        Map<ValidationRule, Integer> expected = new HashMap<>();
 
         GtfsRealtime.TripDescriptor.Builder tripDescriptorBuilder = GtfsRealtime.TripDescriptor.newBuilder();
         tripDescriptorBuilder.setScheduleRelationship(GtfsRealtime.TripDescriptor.ScheduleRelationship.SCHEDULED);
@@ -54,7 +61,8 @@ public class TripDescriptorValidatorTest extends FeedMessageTest {
         feedMessageBuilder.setEntity(0, feedEntityBuilder.build());
 
         results = tripIdValidator.validate(MIN_POSIX_TIME, gtfsData, gtfsDataMetadata, feedMessageBuilder.build(), null);
-        TestUtils.assertResults(ValidationRules.W006, results, 2);
+        expected.put(W006, 2);
+        TestUtils.assertResults(expected, results);
 
         // setting valid trip_id = 1.1, route_id 1.1 that match with IDs in static Gtfs data - no errors
         tripDescriptorBuilder.setTripId("1.1");
@@ -66,8 +74,8 @@ public class TripDescriptorValidatorTest extends FeedMessageTest {
         feedMessageBuilder.setEntity(0, feedEntityBuilder.build());
 
         results = tripIdValidator.validate(MIN_POSIX_TIME, gtfsData, gtfsDataMetadata, feedMessageBuilder.build(), null);
-        TestUtils.assertResults(ValidationRules.E003, results, 0);
-        TestUtils.assertResults(ValidationRules.E004, results, 0);
+        expected.clear();
+        TestUtils.assertResults(expected, results);
 
         // Set invalid route id = 100 that does not match with any route_id in static Gtfs data - two errors
         tripDescriptorBuilder.setRouteId("100");
@@ -78,7 +86,8 @@ public class TripDescriptorValidatorTest extends FeedMessageTest {
         feedMessageBuilder.setEntity(0, feedEntityBuilder.build());
 
         results = tripIdValidator.validate(MIN_POSIX_TIME, gtfsData, gtfsDataMetadata, feedMessageBuilder.build(), null);
-        TestUtils.assertResults(ValidationRules.E004, results, 2);
+        expected.put(E004, 2);
+        TestUtils.assertResults(expected, results);
 
         // Reset to valid route ID
         tripDescriptorBuilder.setRouteId("1");
@@ -768,6 +777,8 @@ public class TripDescriptorValidatorTest extends FeedMessageTest {
         tripUpdateBuilder.setTrip(tripDescriptorBuilder.build());
         vehiclePositionBuilder.setTrip(tripDescriptorBuilder.build());
         feedEntityBuilder.setAlert(alertBuilder.build());
+        feedEntityBuilder.setTripUpdate(tripUpdateBuilder.build());
+        feedEntityBuilder.setVehicle(vehiclePositionBuilder.build());
         feedMessageBuilder.setEntity(0, feedEntityBuilder.build());
 
         results = tripDescriptorValidator.validate(MIN_POSIX_TIME, bullRunnerGtfs, bullRunnerGtfsMetadata, feedMessageBuilder.build(), null);
@@ -785,12 +796,14 @@ public class TripDescriptorValidatorTest extends FeedMessageTest {
         tripUpdateBuilder.setTrip(tripDescriptorBuilder.build());
         vehiclePositionBuilder.setTrip(tripDescriptorBuilder.build());
         feedEntityBuilder.setAlert(alertBuilder.build());
+        feedEntityBuilder.setTripUpdate(tripUpdateBuilder.build());
+        feedEntityBuilder.setVehicle(vehiclePositionBuilder.build());
         feedMessageBuilder.setEntity(0, feedEntityBuilder.build());
 
         results = tripDescriptorValidator.validate(MIN_POSIX_TIME, bullRunnerGtfs, bullRunnerGtfsMetadata, feedMessageBuilder.build(), null);
         TestUtils.assertResults(ValidationRules.E035, results, 0);
 
-        // Set trip_id to the wrong route - 1 error
+        // Set trip_id to the wrong route - 3 errors
         tripDescriptorBuilder.clear();
         tripDescriptorBuilder.setTripId("1");
         tripDescriptorBuilder.setRouteId("B");
@@ -802,10 +815,12 @@ public class TripDescriptorValidatorTest extends FeedMessageTest {
         tripUpdateBuilder.setTrip(tripDescriptorBuilder.build());
         vehiclePositionBuilder.setTrip(tripDescriptorBuilder.build());
         feedEntityBuilder.setAlert(alertBuilder.build());
+        feedEntityBuilder.setTripUpdate(tripUpdateBuilder.build());
+        feedEntityBuilder.setVehicle(vehiclePositionBuilder.build());
         feedMessageBuilder.setEntity(0, feedEntityBuilder.build());
 
         results = tripDescriptorValidator.validate(MIN_POSIX_TIME, bullRunnerGtfs, bullRunnerGtfsMetadata, feedMessageBuilder.build(), null);
-        TestUtils.assertResults(ValidationRules.E035, results, 1);
+        TestUtils.assertResults(ValidationRules.E035, results, 3);
 
         clearAndInitRequiredFeedFields();
     }

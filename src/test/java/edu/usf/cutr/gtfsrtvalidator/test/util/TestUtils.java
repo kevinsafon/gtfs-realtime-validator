@@ -20,6 +20,7 @@ import edu.usf.cutr.gtfsrtvalidator.api.model.ValidationRule;
 import edu.usf.cutr.gtfsrtvalidator.helper.ErrorListHelperModel;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
@@ -29,24 +30,33 @@ import static org.junit.Assert.assertEquals;
 public class TestUtils {
 
     /**
-     * Asserts that for a given rule and error/warning results (results), there should be a certain number of
-     * results (totalExpectedErrorsWarnings).  There should be 0 results for all other rules.
+     * Asserts that for a given map of rules to expected number of warnings/errors (expectedErrorsWarnings) and
+     * error/warning results (results), there should be a certain number of errors warnings for each rule.  There should
+     * be 0 errors/warnings for all other rules not included in the map.  In expectedErrorsWarnings, the key is the
+     * ValidationRule, and the value is the number of expected warnings/errors for that rule.
      *
-     * @param rule                        the rule to assert number of results for
+     * @param expectedErrorsWarnings      A map of the ValidationRules, and the number of expected warnings/errors for each rule.  If a ValidationRule isn't included in this map, there should be 0 errors/warnings for that rule
      * @param results                     list of errors or warnings output from validation
-     * @param totalExpectedErrorsWarnings total number of expected results for the given rule and results
      */
-    public static void assertResults(ValidationRule rule, List<ErrorListHelperModel> results, int totalExpectedErrorsWarnings) {
+    public static void assertResults(Map<ValidationRule, Integer> expectedErrorsWarnings, List<ErrorListHelperModel> results) {
         if (results == null) {
             throw new IllegalArgumentException("results cannot be null - it must be a list of errors or warnings");
         }
+        // Check to make sure that the results list isn't empty if we're expecting at least one error or warnings
+        int totalExpectedErrorsWarnings = 0;
+        for (Integer i : expectedErrorsWarnings.values()) {
+            totalExpectedErrorsWarnings = totalExpectedErrorsWarnings + i;
+        }
         if (results.isEmpty() && totalExpectedErrorsWarnings > 0) {
-            throw new IllegalArgumentException("If at least one error or warning is expected (totalExpectedErrorsWarnings), the results list cannot be empty");
+            throw new IllegalArgumentException("If at least one error or warning is expected, the results list cannot be empty");
         }
         for (ErrorListHelperModel error : results) {
-            if (error.getErrorMessage().getValidationRule().getErrorId().equals(rule.getErrorId())) {
-                assertEquals(totalExpectedErrorsWarnings, error.getOccurrenceList().size());
+            Integer i = expectedErrorsWarnings.get(error.getErrorMessage().getValidationRule());
+            if (i != null) {
+                // Make sure we have i number of errors/warnings
+                assertEquals(i.intValue(), error.getOccurrenceList().size());
             } else {
+                // Make sure there aren't any errors/warnings for this rule, as it wasn't in the HashMap
                 assertEquals(0, error.getOccurrenceList().size());
             }
         }

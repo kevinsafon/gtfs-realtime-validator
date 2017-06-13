@@ -19,6 +19,7 @@ package edu.usf.cutr.gtfsrtvalidator.test;
 import com.google.transit.realtime.GtfsRealtime;
 import edu.usf.cutr.gtfsrtvalidator.api.model.MessageLogModel;
 import edu.usf.cutr.gtfsrtvalidator.api.model.OccurrenceModel;
+import edu.usf.cutr.gtfsrtvalidator.api.model.ValidationRule;
 import edu.usf.cutr.gtfsrtvalidator.helper.ErrorListHelperModel;
 import edu.usf.cutr.gtfsrtvalidator.test.util.TestUtils;
 import edu.usf.cutr.gtfsrtvalidator.util.GtfsUtils;
@@ -28,9 +29,7 @@ import org.junit.Test;
 import org.locationtech.spatial4j.shape.Shape;
 import org.locationtech.spatial4j.shape.ShapeFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 
 import static edu.usf.cutr.gtfsrtvalidator.util.TimestampUtils.MIN_POSIX_TIME;
 import static junit.framework.TestCase.assertFalse;
@@ -49,34 +48,39 @@ public class UtilTest {
         OccurrenceModel errorE001 = new OccurrenceModel(String.valueOf(MIN_POSIX_TIME));
         List<OccurrenceModel> errorListE001 = new ArrayList<>();
 
-
         List<ErrorListHelperModel> results = new ArrayList<>();
-        // Test empty list of error results
-        TestUtils.assertResults(ValidationRules.E001, results, 0);
+        Map<ValidationRule, Integer> expectedErrorsWarnings = new HashMap<>();
+
+        // Test empty list of error results and empty hashmap
+        TestUtils.assertResults(expectedErrorsWarnings, results);
 
         // Test list of error results, but without a MessageLogModel
         results.add(new ErrorListHelperModel(modelE001, errorListE001));
-        TestUtils.assertResults(ValidationRules.E001, results, 0);
+        TestUtils.assertResults(expectedErrorsWarnings, results);
 
         // Test list of error results, with one MessageLogModel
         errorListE001.add(errorE001);
-        TestUtils.assertResults(ValidationRules.E001, results, 1);
+        expectedErrorsWarnings.put(ValidationRules.E001, 1);
+        TestUtils.assertResults(expectedErrorsWarnings, results);
 
         // Test list of error results, with two MessageLogModels
         errorListE001.add(errorE001);
-        TestUtils.assertResults(ValidationRules.E001, results, 2);
+        expectedErrorsWarnings.put(ValidationRules.E001, 2);
+        TestUtils.assertResults(expectedErrorsWarnings, results);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testAssertResultsThrowExceptionNullResults() {
         // Make sure we throw an exception if the results list is null
-        TestUtils.assertResults(ValidationRules.E001, null, 0);
+        TestUtils.assertResults(new HashMap<>(), null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testAssertResultsThrowExceptionEmptyResults() {
         // Make sure we throw an exception if the results list is empty but we expect at least one error
-        TestUtils.assertResults(ValidationRules.E001, new ArrayList<>(), 1);
+        Map<ValidationRule, Integer> expectedErrorsWarnings = new HashMap<>();
+        expectedErrorsWarnings.put(ValidationRules.E001, 1);
+        TestUtils.assertResults(expectedErrorsWarnings, new ArrayList<>());
     }
 
     @Test
