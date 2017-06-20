@@ -143,24 +143,18 @@ public class GtfsRtFeed {
         GtfsRtFeedModel gtfsRtFeed = (GtfsRtFeedModel) session.createQuery(" FROM GtfsRtFeedModel "
                 + "WHERE rtFeedID = "+id).uniqueResult();
 
-        // check if there is a current session for this GTFS RT Feed
-        // the idea would be the get the latest session for this feed
+        // check if a monitoring session for this GTFS RT Feed was started within the last 15m in
         SessionModel feedSession = null;
-        try {
-            List<SessionModel> list = (List<SessionModel>) session.createQuery(
-                    " select sm FROM SessionModel sm inner join sm.gtfsRtFeedModel as gm "
-                            + " WHERE gm.gtfsRtId = " + id + " AND sm.sessionStartTime > " + (currentTimestamp - (15 * 60 * 1000))
-                            + " ORDER BY sm.sessionStartTime DESC").list();
-            if(list != null && list.size() > 0)
-            {
-                feedSession = list.get(0);
-            }
-        } catch (Exception ex){
-
+        List<SessionModel> list = (List<SessionModel>) session.createQuery(
+                " select sm FROM SessionModel sm inner join sm.gtfsRtFeedModel as gm "
+                        + " WHERE gm.gtfsRtId = " + id + " AND sm.sessionStartTime > " + (currentTimestamp - (15 * 60 * 1000))
+                        + " ORDER BY sm.sessionStartTime DESC").list();
+        if(list != null && list.size() > 0)
+        {
+            feedSession = list.get(0);
         }
 
         // Save the session data of a client monitoring feeds.
-
         SessionModel sessionModel = new SessionModel();
         sessionModel.setClientId(clientId);
         sessionModel.setSessionStartTime(currentTimestamp);
@@ -170,10 +164,11 @@ public class GtfsRtFeed {
         GTFSDB.commitAndCloseSession(session);
 
         if(feedSession == null) {
-            //Extract the Url and gtfsId to start the background process
+            // We didnt fint any session so we start a new one
             _log.info("No feed session, starting new one!");
             startBackgroundTask(gtfsRtFeed, updateInterval);
         } else{
+            // we dont start a new session/task and use the current one for all clients
             _log.info("Feed session found!");
         }
 
