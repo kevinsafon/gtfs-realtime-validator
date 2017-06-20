@@ -143,15 +143,15 @@ public class GtfsRtFeed {
         GtfsRtFeedModel gtfsRtFeed = (GtfsRtFeedModel) session.createQuery(" FROM GtfsRtFeedModel "
                 + "WHERE rtFeedID = "+id).uniqueResult();
 
-        // check if a monitoring session for this GTFS RT Feed was started within the last 15m in
+        // check if a monitoring session for this GTFS RT Feed was started within the last 15 min
         SessionModel feedSession = null;
-        List<SessionModel> list = (List<SessionModel>) session.createQuery(
+        List<SessionModel> sessionModelList = (List<SessionModel>) session.createQuery(
                 " select sm FROM SessionModel sm inner join sm.gtfsRtFeedModel as gm "
                         + " WHERE gm.gtfsRtId = " + id + " AND sm.sessionStartTime > " + (currentTimestamp - (15 * 60 * 1000))
                         + " ORDER BY sm.sessionStartTime DESC").list();
-        if(list != null && list.size() > 0)
+        if(sessionModelList != null && sessionModelList.size() > 0)
         {
-            feedSession = list.get(0);
+            feedSession = sessionModelList.get(0);
         }
 
         // Save the session data of a client monitoring feeds.
