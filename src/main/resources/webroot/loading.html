@@ -12,6 +12,26 @@
     <![endif]-->
 </head>
 <body style="background-color: #e4e4e4">
+<div class="navbar navbar-inverse" style="margin-bottom: 0">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="index.html">GTFS-Realtime Validator</a>
+        </div>
+        <div class="collapse navbar-collapse">
+            <ul class="nav navbar-nav pull-right">
+                <li><a href="#">About</a></li>
+                <li><a href="#">Help</a></li>
+                <li><a href="#">Contact Us</a></li>
+            </ul>
+        </div>
+        <!--/.nav-collapse -->
+    </div>
+</div>
 
 <div class="container main-container">
 
@@ -22,38 +42,38 @@
     </div>
 
     <div class="row">
-            <div class="col-md-12">
-                <div class="well content-well">
-                    <h3>Feed Details</h3>
-                    <hr/>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="well">
-                                <label for="gtfs-progress">GTFS-Feed <span
-                                        class="status">(Downloading Feed...)</span></label>
+        <div class="col-md-12">
+            <div class="well content-well">
+                <h3>Feed Details</h3>
+                <hr/>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="well">
+                            <label for="gtfs-progress">GTFS-Feed <span
+                                    class="status">(Downloading Feed...)</span></label>
 
-                                <div id="gtfs-progress" class="progress progress-striped active">
-                                    <div class="progress-bar" style="width: 100%"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="well">
-                                <div class="progress-placeholder"></div>
+                            <div id="gtfs-progress" class="progress progress-striped active">
+                                <div class="progress-bar" style="width: 100%"></div>
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div align="left" class="col-md-4">
-                            <input class="btn btn-primary" type="button" onclick="window.history.back();" value="Back"/>
-                        </div>
-
-                        <div align="right" class="col-md-8">
-                            <input class="btn btn-primary" type="button" onclick="location.reload();" value="Retry"/>
+                    <div class="col-md-12">
+                        <div class="well">
+                            <div class="progress-placeholder"></div>
                         </div>
                     </div>
                 </div>
+                <div class="row">
+                    <div align="left" class="col-md-4">
+                        <input class="btn btn-primary" type="button" onclick="window.history.back();" value="Back"/>
+                    </div>
+
+                    <div align="right" class="col-md-8">
+                        <input class="btn btn-primary" type="button" onclick="location.reload();" value="Retry"/>
+                    </div>
+                </div>
             </div>
+        </div>
     </div>
 
     <div class="gtfs-error-message"></div>
@@ -70,13 +90,13 @@
 <script src="js/handlebars.js"></script>
 
 <script id="gtfsrt-progress-template" type="text/x-handlebars-template">
-        {{#each gtfsFeeds}}
-        <label>GTFS-RT ( {{url}} ) <span class="status">(Checking Feed...)</span></label>
+    {{#each gtfsFeeds}}
+    <label>GTFS-RT ( {{url}} ) <span class="status">(Checking Feed...)</span></label>
 
-        <div id="gtfsrt-progress-{{index}}" class="progress progress-striped active">
-            <div class="progress-bar" style="width: 100%"></div>
-        </div>
-        {{/each}}
+    <div id="gtfsrt-progress-{{index}}" class="progress progress-striped active">
+        <div class="progress-bar" style="width: 100%"></div>
+    </div>
+    {{/each}}
 </script>
 
 <script id="gtfs-error-modal" type="text/x-handlebars-template">

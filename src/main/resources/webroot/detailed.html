@@ -13,6 +13,26 @@
     <![endif]-->
 </head>
 <body style="background-color: #e4e4e4">
+<div class="navbar navbar-default" style="margin-bottom: 0">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="index.html">GTFS-Realtime Validator</a>
+        </div>
+        <div class="collapse navbar-collapse">
+            <ul class="nav navbar-nav pull-right">
+                <li><a href="#">About</a></li>
+                <li><a href="#">Help</a></li>
+                <li><a href="#">Contact Us</a></li>
+            </ul>
+        </div>
+        <!--/.nav-collapse -->
+    </div>
+</div>
 
 <div class="container main-container">
 
@@ -87,35 +107,35 @@
 
 
 
-    <div class="col-md-12">
-        <div class="well content-well">
-            <h3>Error Details</h3>
-            <hr/>
+            <div class="col-md-12">
+                <div class="well content-well">
+                    <h3>Error Details</h3>
+                    <hr/>
 
-            <table id="detail-table"
-                   data-search="true"
-                   data-show-refresh="true"
-                   data-show-toggle="true"
-                   data-show-columns="true"
+                    <table id="detail-table"
+                           data-search="true"
+                           data-show-refresh="true"
+                           data-show-toggle="true"
+                           data-show-columns="true"
 
-                   data-sortable="true"
+                           data-sortable="true"
 
-                   data-pagination="true"
+                           data-pagination="true"
                     >
-                <thead>
-                <tr>
-                    <th data-field="num" data-sortable="true" data-search="true">#</th>
-                    <th data-field="errNum" data-sortable="true">Err#</th>
-                    <th data-field="type">Error Type</th>
-                    <th data-field="description">Description</th>
-                    <th data-field="feed">Feed</th>
-                    <th data-field="occ" data-sortable="true">Occurrences</th>
-                </tr>
-                </thead>
-            </table>
-        </div>
-    </div>
-    </form>
+                        <thead>
+                        <tr>
+                            <th data-field="num" data-sortable="true" data-search="true">#</th>
+                            <th data-field="errNum" data-sortable="true">Err#</th>
+                            <th data-field="type">Error Type</th>
+                            <th data-field="description">Description</th>
+                            <th data-field="feed">Feed</th>
+                            <th data-field="occ" data-sortable="true">Occurrences</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </form>
     </div>
 </div>
 <!-- /.container -->
