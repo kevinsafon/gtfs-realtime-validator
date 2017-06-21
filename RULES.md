@@ -40,6 +40,11 @@ Rules are declared in the [`ValidationRules` class](https://github.com/CUTR-at-U
 | [E037](#E037) | Sequential `stop_time_updates` have the same `stop_id`
 | [E038](#E038) | Invalid `header.gtfs_realtime_version`
 | [E039](#E039) | `FULL_DATASET` feeds should not include `entity.is_deleted`
+| [E040](#E040) | `stop_time_update` doesn't contain `stop_id` or `stop_sequence`
+| [E041](#E041) | `trip` doesn't have any `stop_time_updates`
+| [E042](#E042) | `arrival` or `departure` provided for `NO_DATA` `stop_time_update`
+| [E043](#E043) | `stop_time_update` doesn't have `arrival` or `departure`
+| [E044](#E044) | `stop_time_update` `arrival/departure` doesn't have `delay` or `time`
 
 ### Table of Warnings
 
@@ -359,6 +364,56 @@ The `entity.is_deleted` field should only be included in GTFS-rt feeds with `hea
 * [`header.incrementality`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-feedheader)
 * [`entity.is_deleted`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-feedentity)
 
+<a name="E040"/>
+
+### E040 - `stop_time_update` doesn't contain `stop_id` or `stop_sequence`
+
+All `stop_time_updates` must contain `stop_id` or `stop_sequence` - both fields cannot be left blank.
+
+#### References:
+* [`trip.stop_time_update`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-stoptimeupdate)
+
+<a name="E041"/>
+
+### E041 - `trip` doesn't have any `stop_time_updates`
+
+Unless a `trip's` `schedule_relationship` is `CANCELED`, a `trip` must have at least one `stop_time_update`
+
+#### References:
+* [`trip_update`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-tripupdate)
+* [`trip_update.stop_time_update`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-stoptimeupdate)
+* [`trip_update.trip.schedule_relationship`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#enum-schedulerelationship-1)
+
+<a name="E042"/>
+
+### E042 - `arrival` or `departure` provided for `NO_DATA` `stop_time_update`
+
+If a `stop_time_update` has a `schedule_relationship` of `NO_DATA`, then neither `arrival` nor `departure` should be provided
+
+#### References:
+* [`stop_time_update`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-stoptimeupdate)
+* [`stop_time_update.schedule_relationship`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#enum-schedulerelationship)
+
+<a name="E043"/>
+
+### E043 - `stop_time_update` doesn't have `arrival` or `departure`
+
+If a `stop_time_update` doesn't have a `schedule_relationship` of `SKIPPED` or `NO_DATA`, then either `arrival` or `departure` must be provided
+
+#### References:
+* [`stop_time_update`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-stoptimeupdate)
+* [`stop_time_update.schedule_relationship`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#enum-schedulerelationship)
+
+<a name="E044"/>
+
+### E044 - `stop_time_update` `arrival/departure` doesn't have `delay` or `time`
+
+`stop_time_update.arrival` and `stop_time_update.departure` must have either `delay` or `time` - both fields cannot be missing
+
+#### References:
+* [`stop_time_update`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-stoptimeupdate)
+* [`stop_time_update.arrival and stop_time_update.departure (StopTimeEvent)`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-stoptimeevent)
+
 # Warnings
 
 <a name="W001"/>
@@ -416,9 +471,9 @@ Frequency-based exact_times = 0 trip_updates should contain `vehicle_id`.  This 
 
 <a name="W006"/>
 
-### W006 - `trip_update` missing `trip_id`
+### W006 - `trip` missing `trip_id`
 
-`trip_updates` should include a `trip_id`.  A missing `trip_id` is usually an error in the feed (especially for frequency-based `exact_times` = 0 trips - see [E006](https://github.com/CUTR-at-USF/gtfs-realtime-validator/blob/master/RULES.md#E006), although the section on "Alternative trip matching" includes one exception:
+`trips` should include a `trip_id`.  A missing `trip_id` is usually an error in the feed (especially for frequency-based `exact_times` = 0 trips - see [E006](https://github.com/CUTR-at-USF/gtfs-realtime-validator/blob/master/RULES.md#E006)), although the section on "Alternative trip matching" includes one exception:
 
 >Trips which are not frequency based may also be uniquely identified by a TripDescriptor including the combination of:
 >

@@ -37,9 +37,9 @@ public class ValidationRules {
     public static final ValidationRule W005 = new ValidationRule("W005", "WARNING", "Missing vehicle_id for frequency-based exact_times = 0",
             "Frequency-based exact_times = 0 trip_updates and vehicle positions should contain vehicle_id",
             "is missing vehicle_id, which is suggested for frequency-based exact_times=0 trips");
-    public static final ValidationRule W006 = new ValidationRule("W006", "WARNING", "trip_update missing trip_id",
-            "trip_updates should include a trip_id",
-            "trip_update does not contain a trip_id");
+    public static final ValidationRule W006 = new ValidationRule("W006", "WARNING", "trip missing trip_id",
+            "trip should include a trip_id",
+            "does not contain a trip_id");
     public static final ValidationRule W007 = new ValidationRule("W007", "WARNING", "Refresh interval is more than 35 seconds",
             "GTFS-realtime feeds should be refreshed at least every 30 seconds",
             "which is less than the recommended interval of 35 seconds");
@@ -209,4 +209,24 @@ public class ValidationRules {
     public static final ValidationRule E039 = new ValidationRule("E039", "ERROR", "FULL_DATASET feeds should not include entity.is_deleted",
             "The entity.is_deleted field should only be included in GTFS-rt feeds with header.incrementality of DIFFERENTIAL",
             "- FULL_DATASET feeds should not include is_deleted field");
+
+    public static final ValidationRule E040 = new ValidationRule("E040", "ERROR", "stop_time_update doesn't contain stop_id or stop_sequence",
+            "All stop_time_updates must contain stop_id or stop_sequence - both fields cannot be left blank",
+            "doesn't contain stop_id or stop_sequence");
+
+    public static final ValidationRule E041 = new ValidationRule("E041", "ERROR", "trip doesn't have any stop_time_updates",
+            "Unless a trip's schedule_relationship is CANCELED, a trip must have at least one stop_time_update",
+            "doesn't have any stop_time_updates and isn't CANCELED");
+
+    public static final ValidationRule E042 = new ValidationRule("E042", "ERROR", "arrival or departure provided for NO_DATA stop_time_update",
+            "If a stop_time_update has a schedule_relationship of NO_DATA, then neither arrival nor departure should be provided",
+            "and schedule_relationship of NO_DATA");
+
+    public static final ValidationRule E043 = new ValidationRule("E043", "ERROR", "stop_time_update doesn't have arrival or departure",
+            "If a stop_time_update doesn't have a schedule_relationship of SKIPPED or NO_DATA, then either arrival or departure must be provided",
+            "doesn't have arrival or departure");
+
+    public static final ValidationRule E044 = new ValidationRule("E044", "ERROR", "stop_time_update arrival/departure doesn't have delay or time",
+            "stop_time_update.arrival and stop_time_update.departure must have either delay or time - both fields cannot be missing",
+            "doesn't have delay or time");
 }
