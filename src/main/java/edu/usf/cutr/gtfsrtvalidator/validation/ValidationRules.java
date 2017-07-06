@@ -22,24 +22,24 @@ public class ValidationRules {
     /**
      * Warnings
      */
-    public static final ValidationRule W001 = new ValidationRule("W001", "WARNING", "Timestamp not populated",
+    public static final ValidationRule W001 = new ValidationRule("W001", "WARNING", "timestamp not populated",
             "Timestamps should be populated for all elements",
             "does not have a timestamp");
-    public static final ValidationRule W002 = new ValidationRule("W002", "WARNING", "Vehicle_id not populated",
+    public static final ValidationRule W002 = new ValidationRule("W002", "WARNING", "vehicle_id not populated",
             "vehicle_id should be populated for TripUpdates and VehiclePositions",
             "does not have a vehicle_id");
-    public static final ValidationRule W003 = new ValidationRule("W003", "WARNING", "VehiclePosition and TripUpdate feed mismatch",
-            "If both vehicle positions and trip updates are provided, VehicleDescriptor or TripDescriptor values should match between the two feeds",
-            "does not exist in both VehiclePositions and TripUpdates feeds");
-    public static final ValidationRule W004 = new ValidationRule("W004", "WARNING", "VehiclePosition has unrealistic speed",
+    public static final ValidationRule W003 = new ValidationRule("W003", "WARNING", "ID in one feed missing from the other",
+            "a trip_id that is provided in the VehiclePositions feed should be provided in the TripUpdates feed, and a vehicle_id that is provided in the TripUpdates feed should be provided in the VehiclePositions feed",
+            "");
+    public static final ValidationRule W004 = new ValidationRule("W004", "WARNING", "vehicle speed is unrealistic",
             "vehicle.position.speed has an unrealistic speed that may be incorrect",
             "is unrealistic");
     public static final ValidationRule W005 = new ValidationRule("W005", "WARNING", "Missing vehicle_id for frequency-based exact_times = 0",
             "Frequency-based exact_times = 0 trip_updates and vehicle positions should contain vehicle_id",
             "is missing vehicle_id, which is suggested for frequency-based exact_times=0 trips");
-    public static final ValidationRule W006 = new ValidationRule("W006", "WARNING", "trip_update missing trip_id",
-            "trip_updates should include a trip_id",
-            "trip_update does not contain a trip_id");
+    public static final ValidationRule W006 = new ValidationRule("W006", "WARNING", "trip missing trip_id",
+            "trip should include a trip_id",
+            "does not contain a trip_id");
     public static final ValidationRule W007 = new ValidationRule("W007", "WARNING", "Refresh interval is more than 35 seconds",
             "GTFS-realtime feeds should be refreshed at least every 30 seconds",
             "which is less than the recommended interval of 35 seconds");
@@ -85,10 +85,9 @@ public class ValidationRules {
             "If a GTFS block contains multiple references to the same stopId (i.e., the bus visits the same stopId more than once in the same block), but in different trips, then in the GTFS-rt data the tripId for each TripUpdate.TripDescriptor must be provided. In this case, the bus wouldn't visit the same stopId more than once in the same trip.",
             "does not have a trip_id but visits the same stop_id more than once in the block");
 
-    // TODO - implement - see https://github.com/CUTR-at-USF/gtfs-realtime-validator/issues/17
     public static final ValidationRule E009 = new ValidationRule("E009", "ERROR", "GTFS-rt stop_sequence isn't provided for trip that visits same stop_id more than once",
-            "If a GTFS trip contains multiple references to the same stopId (i.e., the bus visits the same stop_id more than once in the SAME trip), then in the GTFS-rt data the stop_sequence for each TripUpdate.StopTimeUpdate must be provided.",
-            "does not contain stop_sequence");
+            "If a GTFS trip contains multiple references to the same stop_id (i.e., the vehicle visits the same stop_id more than once in the same trip), then GTFS-rt stop_time_updates for this trip must include stop_sequence",
+            "more than once and GTFS-rt stop_time_update is missing stop_sequence field - stop_sequence must be provided");
 
     public static final ValidationRule E010 = new ValidationRule("E010", "ERROR", "location_type not 0 in stops.txt",
             "If location_type is used in stops.txt, all stops referenced in stop_times.txt must have location_type of 0",
@@ -209,4 +208,36 @@ public class ValidationRules {
     public static final ValidationRule E039 = new ValidationRule("E039", "ERROR", "FULL_DATASET feeds should not include entity.is_deleted",
             "The entity.is_deleted field should only be included in GTFS-rt feeds with header.incrementality of DIFFERENTIAL",
             "- FULL_DATASET feeds should not include is_deleted field");
+
+    public static final ValidationRule E040 = new ValidationRule("E040", "ERROR", "stop_time_update doesn't contain stop_id or stop_sequence",
+            "All stop_time_updates must contain stop_id or stop_sequence - both fields cannot be left blank",
+            "doesn't contain stop_id or stop_sequence");
+
+    public static final ValidationRule E041 = new ValidationRule("E041", "ERROR", "trip doesn't have any stop_time_updates",
+            "Unless a trip's schedule_relationship is CANCELED, a trip must have at least one stop_time_update",
+            "doesn't have any stop_time_updates and isn't CANCELED");
+
+    public static final ValidationRule E042 = new ValidationRule("E042", "ERROR", "arrival or departure provided for NO_DATA stop_time_update",
+            "If a stop_time_update has a schedule_relationship of NO_DATA, then neither arrival nor departure should be provided",
+            "and schedule_relationship of NO_DATA");
+
+    public static final ValidationRule E043 = new ValidationRule("E043", "ERROR", "stop_time_update doesn't have arrival or departure",
+            "If a stop_time_update doesn't have a schedule_relationship of SKIPPED or NO_DATA, then either arrival or departure must be provided",
+            "doesn't have arrival or departure");
+
+    public static final ValidationRule E044 = new ValidationRule("E044", "ERROR", "stop_time_update arrival/departure doesn't have delay or time",
+            "stop_time_update.arrival and stop_time_update.departure must have either delay or time - both fields cannot be missing",
+            "doesn't have delay or time");
+
+    public static final ValidationRule E045 = new ValidationRule("E045", "ERROR", "GTFS-rt stop_time_update stop_sequence and stop_id do not match GTFS",
+            "If GTFS-rt stop_time_update contains both stop_sequence and stop_id, the values must match the GTFS data in stop_times.txt",
+            "- stop_ids should be the same");
+
+    public static final ValidationRule E046 = new ValidationRule("E046", "ERROR", "GTFS-rt stop_time_update without time doesn't have arrival/departure_time in GTFS",
+            "If only delay is provided in a stop_time_update arrival or departure (and not a time), then the GTFS stop_times.txt must contain arrival_times and/or departure_times for these corresponding stops.",
+            "isn't set and GTFS doesn't have arrival/departure_time in stop_times.txt");
+
+    public static final ValidationRule E047 = new ValidationRule("E047", "ERROR", "VehiclePosition and TripUpdate ID pairing mismatch",
+            "If separate `VehiclePositions` and `TripUpdates` feeds are provided, `VehicleDescriptor` or `TripDescriptor` ID value pairing should match between the two feeds.",
+            "- ID pairing between feeds should match");
 }

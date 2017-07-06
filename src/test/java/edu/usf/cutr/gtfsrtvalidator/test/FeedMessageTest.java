@@ -30,34 +30,44 @@ import java.util.Collection;
 import java.util.List;
 import java.util.TimeZone;
 
+/**
+ * Base class extended by each individual rule test
+ */
 public abstract class FeedMessageTest {
-
 
     public GtfsDaoImpl gtfsData;
     public GtfsMetadata gtfsDataMetadata;
+
     public GtfsDaoImpl gtfsData2; // gtfsData2 contains location_type = 1 for stop_id
     public GtfsMetadata gtfsData2Metadata;
+
     public GtfsDaoImpl bullRunnerGtfs; // For Frequency-based exact_times=0 trips
     public GtfsMetadata bullRunnerGtfsMetadata;
+
     public GtfsDaoImpl bullRunnerGtfsNoShapes; // Missing shapes.txt
     public GtfsMetadata bullRunnerGtfsNoShapesMetadata;
+
+    public GtfsDaoImpl bullRunnerGtfsTimepointsOnlyLegacyExactTimes1; // Only timepoints in stop_times.txt (without timepoint field)
+    public GtfsMetadata bullRunnerGtfsTimepointsOnlyLegacyExactTimes1Metadata;
+
     public GtfsReader reader;
     public final File staticGtfsFile = new File("src/test/resources/testagency.zip");
     public final File staticGtfs2File = new File("src/test/resources/testagency2.zip");
     public final File bullRunnerGtfsFile = new File("src/test/resources/bullrunner-gtfs.zip");
     public final File bullRunnerNoShapesGtfsFile = new File("src/test/resources/bullrunner-gtfs-no-shapes.zip");
+    public final File bullRunnerGtfsTimepointsOnlyLegacyExactTimes1GtfsFile = new File("src/test/resources/bullrunner-gtfs-timepoints-only-legacy-exact-times-1.zip");
     public final static String ENTITY_ID = "TEST_ENTITY";
-    
+
     public List<ErrorListHelperModel> results;
-    
+
     public GtfsRealtime.FeedMessage.Builder feedMessageBuilder;
     public GtfsRealtime.FeedEntity.Builder feedEntityBuilder;
     public GtfsRealtime.FeedHeader.Builder feedHeaderBuilder;
-    
+
     public GtfsRealtime.TripUpdate.Builder tripUpdateBuilder;
     public GtfsRealtime.VehiclePosition.Builder vehiclePositionBuilder;
     public GtfsRealtime.Alert.Builder alertBuilder;
-        
+
     public FeedMessageTest() throws IOException {
         results = Arrays.asList(new ErrorListHelperModel());
 
@@ -70,7 +80,7 @@ public abstract class FeedMessageTest {
         alertBuilder = GtfsRealtime.Alert.newBuilder();
 
         String timeZoneText = null;
-        
+
         // Read GTFS data into a GtfsDaoImpl
         gtfsData = new GtfsDaoImpl();
         reader = new GtfsReader();
@@ -83,7 +93,7 @@ public abstract class FeedMessageTest {
             break;
         }
         gtfsDataMetadata = new GtfsMetadata("testagency.zip", TimeZone.getTimeZone(timeZoneText), gtfsData);
-            
+
         gtfsData2 = new GtfsDaoImpl();
         reader = new GtfsReader();
         reader.setInputLocation(staticGtfs2File);
@@ -118,25 +128,37 @@ public abstract class FeedMessageTest {
             timeZoneText = agency.getTimezone();
             break;
         }
-        bullRunnerGtfsNoShapesMetadata = new GtfsMetadata("bullrunner-gtfs.zip", TimeZone.getTimeZone(timeZoneText), bullRunnerGtfsNoShapes);
-        
+        bullRunnerGtfsNoShapesMetadata = new GtfsMetadata("bullrunner-gtfs-no-shapes.zip", TimeZone.getTimeZone(timeZoneText), bullRunnerGtfsNoShapes);
+
+        bullRunnerGtfsTimepointsOnlyLegacyExactTimes1 = new GtfsDaoImpl();
+        reader = new GtfsReader();
+        reader.setInputLocation(bullRunnerGtfsTimepointsOnlyLegacyExactTimes1GtfsFile);
+        reader.setEntityStore(bullRunnerGtfsTimepointsOnlyLegacyExactTimes1);
+        reader.run();
+        agencies = bullRunnerGtfsTimepointsOnlyLegacyExactTimes1.getAllAgencies();
+        for (Agency agency : agencies) {
+            timeZoneText = agency.getTimezone();
+            break;
+        }
+        bullRunnerGtfsTimepointsOnlyLegacyExactTimes1Metadata = new GtfsMetadata("bullrunner-gtfs-timepoints-only-legacy.zip", TimeZone.getTimeZone(timeZoneText), bullRunnerGtfsTimepointsOnlyLegacyExactTimes1);
+
         clearAndInitRequiredFeedFields();
     }
-    
+
     // Initialization of some required fields in FeedMessage
     public final void clearAndInitRequiredFeedFields() {
         // clear the fields first
         feedEntityBuilder.clear();
         feedMessageBuilder.clear();
         feedHeaderBuilder.clear();
-        
+
         tripUpdateBuilder.clear();
         vehiclePositionBuilder.clear();
         alertBuilder.clear();
-        
+
         feedHeaderBuilder.setGtfsRealtimeVersion("1.0");
         feedMessageBuilder.setHeader(feedHeaderBuilder);
-        
+
         feedEntityBuilder.setId(ENTITY_ID);
         feedMessageBuilder.addEntity(feedEntityBuilder);
     }
